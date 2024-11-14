@@ -21,6 +21,11 @@ export const adminRoutes = [
         role : 'admin'
     },
     {
+        path: 'admin/dashboard/sellers',
+        element : <Sellers/> ,
+        role : 'admin'
+    },
+    {
         path: 'admin/dashboard/payment-request',
         element : <PaymentRequest/> ,
         role : 'admin'

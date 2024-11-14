@@ -7,7 +7,7 @@ import { IoIosChatbubbles } from "react-icons/io";
 export const allNav = [
     {
         id : 1,
-        title : 'Dashboard',
+        title : 'Sales Statistics',
         icon : <AiOutlineDashboard />,
         role : 'admin',
         path: '/admin/dashboard'
@@ -63,7 +63,7 @@ export const allNav = [
     },
     {
         id : 9,
-        title : 'Dashboard',
+        title : 'Sales Statistics',
         icon : <AiOutlineDashboard />,
         role : 'seller',
         path: '/seller/dashboard'

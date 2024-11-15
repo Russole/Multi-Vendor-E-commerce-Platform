@@ -94,7 +94,7 @@ class authControllers {
          }
     }
     // End Method
-    
+
     getUser = async (req, res) => {
         const { id, role } = req;
         try {
@@ -103,10 +103,12 @@ class authControllers {
                 responseReturn(res, 200, { userInfo: user })
             } else {
                 console.log('Seller Info')
+                const seller = await sellerModel.findById(id)
+                responseReturn(res, 200, {userInfo : seller})
             }
 
         } catch (error) {
-            console.log(error.message)
+            responseReturn(res,500,{error: 'Internal Server Error'})
         }
     } 
     // End getUser Method

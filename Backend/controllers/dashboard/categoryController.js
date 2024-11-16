@@ -1,4 +1,3 @@
-
 const formidable = require("formidable")
 const { responseReturn } = require("../../utils/response")
 const cloudinary = require('cloudinary').v2
@@ -15,7 +14,7 @@ class categoryController{
                 let {name} = fields
                 let {image} = files
                 name = name.trim()
-                const slug = name.split(' ').join('-') //why?
+                const slug = name.split(' ').join('-')
 
                 cloudinary.config({
                     cloud_name: process.env.cloud_name,
@@ -51,31 +50,48 @@ class categoryController{
         })
     }
 
+ // end method
 
     get_category = async (req, res) => {
-        const {page,searchValue, parPage} = req.query
-        const skipPage = parseInt(parPage) * (parseInt(page) - 1)
-        try {
-         if (searchValue) {
-             const categorys = await categoryModel.find({
-                 $text: { $search: searchValue }
-             }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
-             const totalCategory = await categoryModel.find({
-                 $text: { $search: searchValue }
-             }).countDocuments()
-             responseReturn(res, 200,{categorys,totalCategory})
-         } else {
-             const categorys = await categoryModel.find({ }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
-             const totalCategory = await categoryModel.find({ }).countDocuments()
-             responseReturn(res, 200,{categorys,totalCategory})
-             
-         }
-         
-        } catch (error) {
-         
+       const {page,searchValue, parPage} = req.query
+       const skipPage = parseInt(parPage) * (parseInt(page) - 1)
+
+       try {
+        if (searchValue && page && parPage) {
+            const categorys = await categoryModel.find({
+                $text: { $search: searchValue }
+            }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+            const totalCategory = await categoryModel.find({
+                $text: { $search: searchValue }
+            }).countDocuments()
+            responseReturn(res, 200,{categorys,totalCategory})
+        } 
+        else if(searchValue === '' && page && parPage) {
+
+            const categorys = await categoryModel.find({ }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+            const totalCategory = await categoryModel.find({ }).countDocuments()
+            responseReturn(res, 200,{categorys,totalCategory}) 
+        } 
+        
+        else {
+
+            const categorys = await categoryModel.find({ }).sort({ createdAt: -1})
+            const totalCategory = await categoryModel.find({ }).countDocuments()
+            responseReturn(res, 200,{categorys,totalCategory})
+            
         }
         
+       } catch (error) {
+            console.log(error.message)
+       }
+
+
     }
+
+    // end method 
+
+
+
 
 }
  

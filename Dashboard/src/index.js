@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 const App = lazy(() => import('./App'))
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+// console.log("root")
 root.render(
   <BrowserRouter>
     <Provider store={store} >

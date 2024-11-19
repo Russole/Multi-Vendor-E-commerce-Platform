@@ -14,6 +14,8 @@ import Search from '../components/Search';
 
 const Category = () => {
 
+    // console.log("rerender")
+
     const dispatch = useDispatch()
     const {loader,successMessage,errorMessage,categorys} = useSelector(state=> state.category)
 
@@ -46,13 +48,14 @@ const Category = () => {
 
 
     const add_category = (e) => {
+        // console.log("add  category");
         e.preventDefault()
         dispatch(categoryAdd(state))
         // console.log(state)
     }
 
     useEffect(() => {
-
+        // console.log("category useEffect");
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear()) 
@@ -72,6 +75,7 @@ const Category = () => {
     },[successMessage,errorMessage])
    
     useEffect(() => {
+        console.log("get_category")
         const obj = {
             parPage: parseInt(parPage),
             page: parseInt(currentPage),

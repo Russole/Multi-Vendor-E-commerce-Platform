@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { get_user_info } from "./store/Reducers/authReducer";
 
 function App() {
-
+  // console.log("App.jsx")
   const dispatch = useDispatch()
   const { token } = useSelector(state => state.auth)
   const [allRoutes, setAllRoutes] = useState([...publicRoutes])

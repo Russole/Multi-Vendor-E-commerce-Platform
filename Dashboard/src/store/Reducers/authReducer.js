@@ -83,6 +83,25 @@ export const seller_login = createAsyncThunk(
     }
 )
 
+// end method
+
+export const profile_image_upload = createAsyncThunk(
+    'auth/profile_image_upload',
+    async(image ,{rejectWithValue, fulfillWithValue}) => {
+          
+        try {
+            const {data} = await api.post('/profile-image-upload',image,{withCredentials: true})
+            // console.log(data)            
+            return fulfillWithValue(data)
+        } catch (error) {
+            // console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+// end method 
+
 export const authReducer = createSlice({
     name: 'auth',
     initialState: {
@@ -142,6 +161,14 @@ export const authReducer = createSlice({
         .addCase(get_user_info.fulfilled, (state, { payload }) => {
             state.loader = false;
             state.userInfo = payload.userInfo
+        })
+        .addCase(profile_image_upload.pending, (state, { payload }) => {
+            state.loader = true; 
+        })
+        .addCase(profile_image_upload.fulfilled, (state, { payload }) => {
+            state.loader = false;
+            state.userInfo = payload.userInfo
+            state.successMessage = payload.message
         })
     }
 })

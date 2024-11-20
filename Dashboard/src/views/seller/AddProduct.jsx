@@ -11,9 +11,13 @@ import toast from 'react-hot-toast';
 
 const AddProduct = () => {
 
+    // console.log("rerender")
+
     const dispatch = useDispatch();
     const { categorys } = useSelector(state => state.category);
     const { loader,successMessage,errorMessage } = useSelector(state => state.product);
+
+    // console.log(categorys)
 
     useEffect(() => {
         dispatch(get_category({
@@ -138,6 +142,7 @@ const AddProduct = () => {
         dispatch(add_product(formData));
     }
     useEffect(() => {
+        // console.log("setallcategory")
         setAllCategory(categorys);
     },[categorys])
 

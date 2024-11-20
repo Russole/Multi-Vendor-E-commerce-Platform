@@ -35,6 +35,40 @@ export const get_products = createAsyncThunk(
     }
 )
 
+// End Method
+  
+export const get_product = createAsyncThunk(
+    'product/get_product',
+    async( productId ,{rejectWithValue, fulfillWithValue}) => {
+        
+        try {
+             
+            const {data} = await api.get(`/product-get/${productId}`,{withCredentials: true}) 
+            console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            // console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+  // End Method
+  
+export const update_product = createAsyncThunk(
+    'product/update_product',
+    async( product ,{rejectWithValue, fulfillWithValue}) => {
+        
+        try {
+             
+            const {data} = await api.post('/product-update', product,{withCredentials: true}) 
+            console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            // console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
   // End Method 
  
 export const productReducer = createSlice({
@@ -43,7 +77,8 @@ export const productReducer = createSlice({
         successMessage :  '',
         errorMessage : '',
         loader: false,
-        products : [], 
+        products : [],
+        product : '', 
         totalProduct: 0
     },
     reducers : {
@@ -70,6 +105,23 @@ export const productReducer = createSlice({
         .addCase(get_products.fulfilled, (state, { payload }) => {
             state.totalProduct = payload.totalProduct;
             state.products = payload.products;
+             
+        })
+        .addCase(get_product.fulfilled, (state, { payload }) => {
+            state.product = payload.product;  
+        })
+
+        .addCase(update_product.pending, (state, { payload }) => {
+            state.loader = true;
+        })
+        .addCase(update_product.rejected, (state, { payload }) => {
+            state.loader = false;
+            state.errorMessage = payload.error
+        }) 
+        .addCase(update_product.fulfilled, (state, { payload }) => {
+            state.loader = false;
+            state.product = payload.product 
+            state.successMessage = payload.message 
              
         })
  

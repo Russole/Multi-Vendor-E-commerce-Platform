@@ -7,7 +7,7 @@ import { FaTwitter } from "react-icons/fa6";
 import { FaLinkedin } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation} from 'react-router-dom';
 import { FaHeart } from "react-icons/fa6";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaPhoneAlt } from "react-icons/fa";
@@ -250,7 +250,7 @@ const Header = () => {
                         return (
                          <li key={i} className='flex justify-start items-center gap-2 px-[24px] py-[6px]'>
                              <img src={c.image} className='w-[30px] h-[30px] rounded-full overflow-hidden' alt="" />
-                             <Link className='text-sm block'>{c.name}</Link>
+                             <Link to={`/products?category=${c.name}`}className='text-sm block'>{c.name}</Link>
                          </li>
                         )
                     })

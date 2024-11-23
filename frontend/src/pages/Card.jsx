@@ -4,7 +4,8 @@ import Footer from '../components/Footer';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoIosArrowForward } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
-import { get_card_products } from '../store/reducers/cardReducer';
+import { get_card_products, delete_card_product, messageClear, quantity_inc, quantity_dec } from '../store/reducers/cardReducer';
+import toast from 'react-hot-toast';
 
 const Card = () => {
 
@@ -26,6 +27,28 @@ const Card = () => {
     useEffect(() => {
         dispatch(get_card_products(userInfo.id))
     },[])
+    useEffect(() => { 
+        if (successMessage) {
+            toast.success(successMessage)
+            dispatch(messageClear())  
+            dispatch(get_card_products(userInfo.id))
+        } 
+        
+    },[successMessage])
+
+    const inc = (quantity, stock, card_id) => {
+        const temp = quantity + 1;
+        if (temp <= stock) {
+            dispatch(quantity_inc(card_id))
+        }
+    }
+
+    const dec = (quantity, card_id) => {
+        const temp = quantity - 1;
+        if (temp !== 0) {
+            dispatch(quantity_dec(card_id))
+        }
+    }
 
     return (
         <div>
@@ -85,11 +108,11 @@ const Card = () => {
        </div>
        <div className='flex gap-2 flex-col'>
            <div className='flex bg-slate-200 h-[30px] justify-center items-center text-xl'>
-               <div className='px-3 cursor-pointer'>-</div> 
+               <div onClick={() => dec(pt.quantity, pt._id )} className='px-3 cursor-pointer'>-</div> 
                <div className='px-3'>{pt.quantity }</div> 
-               <div className='px-3 cursor-pointer'>+</div> 
+               <div onClick={() => inc(pt.quantity,pt.productInfo.stock, pt._id )} className='px-3 cursor-pointer'>+</div> 
            </div>
-           <button className='px-5 py-[3px] bg-red-500 text-white'>Delete</button>
+           <button onClick={() => dispatch(delete_card_product(pt._id)) } className='px-5 py-[3px] bg-red-500 text-white'>Delete</button>
        </div>
    </div>
 
@@ -127,11 +150,11 @@ const Card = () => {
        </div>
        <div className='flex gap-2 flex-col'>
            <div className='flex bg-slate-200 h-[30px] justify-center items-center text-xl'>
-               <div className='px-3 cursor-pointer'>-</div> 
+               <div onClick={() => dec(p.quantity, p._id )} className='px-3 cursor-pointer'>-</div> 
                <div className='px-3'>{p.quantity}</div> 
                <div className='px-3 cursor-pointer'>+</div> 
            </div>
-           <button className='px-5 py-[3px] bg-red-500 text-white'>Delete</button>
+           <button onClick={() => dispatch(delete_card_product(p._id)) } className='px-5 py-[3px] bg-red-500 text-white'>Delete</button>
        </div>
    </div>
 
@@ -153,12 +176,12 @@ const Card = () => {
             card_products.length > 0 && <div className='bg-white p-3 text-slate-600 flex flex-col gap-3'>
                 <h2 className='text-xl font-bold'>Order Summary</h2>
                 <div className='flex justify-between items-center'>
-                    <span>2 Items </span>
-                    <span>$343 </span>
+                    <span>{buy_product_item} Items </span>
+                    <span>${price}  </span>
                 </div>
                 <div className='flex justify-between items-center'>
                     <span>Shipping Fee </span>
-                    <span>$40 </span>
+                    <span>${shipping_fee} </span>
                 </div>
                 <div className='flex gap-2'>
                 <input className='w-full px-3 py-2 border border-slate-200 outline-0 focus:border-green-500 rounded-sm' type="text" placeholder='Input Vauchar Coupon' />
@@ -167,10 +190,10 @@ const Card = () => {
 
                 <div className='flex justify-between items-center'>
                     <span>Total</span>
-                    <span className='text-lg text-[#059473]'>$430 </span>
+                    <span className='text-lg text-[#059473]'>${price + shipping_fee} </span>
                 </div>
                 <button onClick={redirect} className='px-5 py-[6px] rounded-sm hover:shadow-red-500/50 hover:shadow-lg bg-red-500 text-sm text-white uppercase '>
-                    Process to Checkout 
+                    Process to Checkout ({buy_product_item})
                 </button>
 
             </div>

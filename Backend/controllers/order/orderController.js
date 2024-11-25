@@ -2,10 +2,10 @@ const authOrderModel = require('../../models/authOrder')
 const customerOrder = require('../../models/customerOrder')
 const cardModel = require('../../models/cardModel')
 const moment = require("moment")
-const { responseReturn } = require('../../utils/response') 
-const { mongo: {ObjectId}} = require('mongoose')
+const { responseReturn } = require('../../utils/response')
+const { mongo: { ObjectId } } = require('mongoose')
 
-class orderController{
+class orderController {
 
     paymentCheck = async (id) => {
         try {
@@ -16,7 +16,7 @@ class orderController{
                 })
                 await authOrderModel.updateMany({
                     orderId: id
-                },{
+                }, {
                     delivery_status: 'cancelled'
                 })
             }
@@ -27,8 +27,8 @@ class orderController{
     }
     // end method
 
-    place_order = async (req,res) => {
-        const {price,products,shipping_fee,shippingInfo,userId } = req.body
+    place_order = async (req, res) => {
+        const { price, products, shipping_fee, shippingInfo, userId } = req.body
         let authorOrderData = []
         let cardId = []
         const tempDate = moment(Date.now()).format('LLL')
@@ -41,8 +41,8 @@ class orderController{
                 customerOrderProduct.push(tempCusPro)
                 if (pro[j]._id) {
                     cardId.push(pro[j]._id)
-                } 
-            } 
+                }
+            }
         }
         try {
             const order = await customerOrder.create({
@@ -62,58 +62,95 @@ class orderController{
                 for (let j = 0; j < pro.length; j++) {
                     const tempPro = pro[j].productInfo
                     tempPro.quantity = pro[j].quantity
-                    storePor.push(tempPro)                    
+                    storePor.push(tempPro)
                 }
                 authorOrderData.push({
-                    orderId: order.id,sellerId,
+                    orderId: order.id, sellerId,
                     products: storePor,
-                    price:pri,
+                    price: pri,
                     payment_status: 'unpaid',
                     shippingInfo: 'Easy Main Warehouse',
                     delivery_status: 'pending',
                     date: tempDate
-                }) 
+                })
             }
             await authOrderModel.insertMany(authorOrderData)
             for (let k = 0; k < cardId.length; k++) {
-                await cardModel.findByIdAndDelete(cardId[k]) 
+                await cardModel.findByIdAndDelete(cardId[k])
             }
 
             setTimeout(() => {
                 this.paymentCheck(order.id)
             }, 15000)
-            responseReturn(res,200,{message: "Order Placed Success" , orderId: order.id })
+            responseReturn(res, 200, { message: "Order Placed Success", orderId: order.id })
         } catch (error) {
             console.log(error.message)
         }
     }
     // End Method
-    
-    get_customer_dashboard_data = async(req,res) => {
-        const{ userId } = req.params 
+
+    get_customer_dashboard_data = async (req, res) => {
+        const { userId } = req.params
         try {
             const recentOrders = await customerOrder.find({
-                customerId: new ObjectId(userId) 
+                customerId: new ObjectId(userId)
             }).limit(5)
             const pendingOrder = await customerOrder.find({
-                customerId: new ObjectId(userId),delivery_status: 'pending'
-             }).countDocuments()
-             const totalOrder = await customerOrder.find({
+                customerId: new ObjectId(userId), delivery_status: 'pending'
+            }).countDocuments()
+            const totalOrder = await customerOrder.find({
                 customerId: new ObjectId(userId)
-             }).countDocuments()
-             const cancelledOrder = await customerOrder.find({
-                customerId: new ObjectId(userId),delivery_status: 'cancelled'
-             }).countDocuments()
-             responseReturn(res, 200,{
+            }).countDocuments()
+            const cancelledOrder = await customerOrder.find({
+                customerId: new ObjectId(userId), delivery_status: 'cancelled'
+            }).countDocuments()
+            responseReturn(res, 200, {
                 recentOrders,
                 pendingOrder,
                 totalOrder,
                 cancelledOrder
-             })
-            
+            })
+
         } catch (error) {
             console.log(error.message)
-        } 
+        }
+    }
+    // End Method
+
+    get_orders = async (req, res) => {
+        const { customerId, status } = req.params
+        try {
+            let orders = []
+            if (status !== 'all') {
+                orders = await customerOrder.find({
+                    customerId: new ObjectId(customerId),
+                    delivery_status: status
+                })
+            } else {
+                orders = await customerOrder.find({
+                    customerId: new ObjectId(customerId)
+                })
+            }
+            responseReturn(res, 200, {
+                orders
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // End Method
+    get_order_details = async (req, res) => {
+        const { orderId } = req.params
+        try {
+            const order = await customerOrder.findById(orderId)
+            responseReturn(res, 200, {
+                order
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
     }
     // End Method 
 }

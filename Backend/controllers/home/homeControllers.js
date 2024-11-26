@@ -4,6 +4,7 @@ const reviewModel = require('../../models/reviewModel')
 const { responseReturn } = require("../../utils/response");
 const queryProducts = require('../../utils/queryProducts');
 const moment = require('moment');
+const { mongo: { ObjectId } } = require('mongoose');
 
 class homeControllers {
 
@@ -130,8 +131,8 @@ class homeControllers {
     product_details = async (req, res) => {
         const { slug } = req.params
         try {
-            const product = await productModel.findOne({slug})
-            
+            const product = await productModel.findOne({ slug })
+
             const relatedProducts = await productModel.find({
                 $and: [{
                     _id: {
@@ -140,10 +141,10 @@ class homeControllers {
                 },
                 {
                     category: {
-                        $eq: product.category 
+                        $eq: product.category
                     }
                 }
-               ]
+                ]
             }).limit(12)
             const moreProducts = await productModel.find({
                 $and: [{
@@ -156,14 +157,14 @@ class homeControllers {
                         $eq: product.sellerId
                     }
                 }
-               ]
+                ]
             }).limit(3)
             responseReturn(res, 200, {
                 product,
                 relatedProducts,
                 moreProducts
             })
-    
+
         } catch (error) {
             console.log(error.message)
         }
@@ -171,38 +172,116 @@ class homeControllers {
     // end method
 
     submit_review = async (req, res) => {
-        const {productId,rating,review,name} = req.body
+        const { productId, rating, review, name } = req.body
         console.log(name)
         try {
-           await reviewModel.create({
-               productId,
-               name,
-               rating,
-               review,
-               date: moment(Date.now()).format('LL')
-           })
-           let rat = 0;
-           const reviews = await reviewModel.find({
-               productId
-           })
-           for (let i = 0; i < reviews.length; i++) {
-               rat = rat + reviews[i].rating 
-           }
-           let productRating = 0
-           if (reviews.length !== 0) {
-               productRating = (rat / reviews.length).toFixed(1)
-           }
-           await productModel.findByIdAndUpdate(productId,{
-               rating : productRating
-           })
-           responseReturn(res, 201, {
-               message: "Review Added Successfully"
-           })
-           
+            await reviewModel.create({
+                productId,
+                name,
+                rating,
+                review,
+                date: moment(Date.now()).format('LL')
+            })
+            let rat = 0;
+            const reviews = await reviewModel.find({
+                productId
+            })
+            for (let i = 0; i < reviews.length; i++) {
+                rat = rat + reviews[i].rating
+            }
+            let productRating = 0
+            if (reviews.length !== 0) {
+                productRating = (rat / reviews.length).toFixed(1)
+            }
+            await productModel.findByIdAndUpdate(productId, {
+                rating: productRating
+            })
+            responseReturn(res, 201, {
+                message: "Review Added Successfully"
+            })
+
         } catch (error) {
-           console.log(error.message)
+            console.log(error.message)
         }
-   }
-   // end method 
-} 
+    }
+    // end method
+
+    get_reviews = async (req, res) => {
+        const { productId } = req.params
+        let { pageNo } = req.query
+        pageNo = parseInt(pageNo)
+        const limit = 5
+        const skipPage = limit * (pageNo - 1)
+        try {
+            let getRating = await reviewModel.aggregate([{
+                $match: {
+                    productId: {
+                        $eq: new ObjectId(productId)
+                    },
+                    rating: {
+                        $not: {
+                            $size: 0
+                        }
+                    }
+                }
+            },
+            {
+                $unwind: "$rating"
+            },
+            {
+                $group: {
+                    _id: "$rating",
+                    count: {
+                        $sum: 1
+                    }
+                }
+            }
+            ])
+            let rating_review = [{
+                rating: 5,
+                sum: 0
+            },
+            {
+                rating: 4,
+                sum: 0
+            },
+            {
+                rating: 3,
+                sum: 0
+            },
+            {
+                rating: 2,
+                sum: 0
+            },
+            {
+                rating: 1,
+                sum: 0
+            }
+            ]
+            for (let i = 0; i < rating_review.length; i++) {
+                for (let j = 0; j < getRating.length; j++) {
+                    if (rating_review[i].rating === getRating[j]._id) {
+                        rating_review[i].sum = getRating[j].count
+                        break
+                    }
+                }
+            }
+            const getAll = await reviewModel.find({
+                productId
+            })
+            const reviews = await reviewModel.find({
+                productId
+            }).skip(skipPage).limit(limit).sort({ createdAt: -1 })
+            responseReturn(res, 200, {
+                reviews,
+                totalReview: getAll.length,
+                rating_review
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // end method
+}
 module.exports = new homeControllers();

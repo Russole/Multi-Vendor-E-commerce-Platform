@@ -123,7 +123,7 @@ export const logout = createAsyncThunk(
          
         try {
             const {data} = await api.get('/logout', {withCredentials: true}) 
-            localStorage.removeItem('accessToken',data.token) 
+            localStorage.removeItem('accessToken') 
             if (role === 'admin') {
                 navigate('/admin/login')
             } else {

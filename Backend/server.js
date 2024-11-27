@@ -14,10 +14,13 @@ const socket = require('socket.io')
 const http = require('http')
 const server = http.createServer(app)
 app.use(cors({
-    origin : ['http://localhost:3000'],
-    credentials : true // cross-origin requests are allowed to carry authentication information (such as cookies)
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
 })) // Middleware to handle cross-origin requests in CORS
-    // It means that requests from only these two origins will be allowed
+// It means that requests from only these two origins will be allowed
+
+var allCustomer = []
+var allSeller = []
 
 const io = socket(server, {
     cors: {
@@ -28,8 +31,9 @@ const io = socket(server, {
 
 var allCustomer = []
 
-const addUser = (customerId,socketId,userInfo) => {
+const addUser = (customerId, socketId, userInfo) => {
     const checkUser = allCustomer.some(u => u.customerId === customerId)
+    console.log("checkUser")
     if (!checkUser) {
         allCustomer.push({
             customerId,
@@ -37,31 +41,76 @@ const addUser = (customerId,socketId,userInfo) => {
             userInfo
         })
     }
+}
+
+const addSeller = (sellerId,socketId,userInfo) => {
+    const checkSeller = allSeller.some(u => u.sellerId === sellerId)
+    if (!checkSeller) {
+        allSeller.push({
+            sellerId,
+            socketId,
+            userInfo
+        })
+    }
 } 
+
+const findCustomer = (customerId) => {
+    return allCustomer.find(c => c.customerId === customerId)
+}
+
+const remove = (socketId) => {
+    allCustomer = allCustomer.filter(c => c.socketId !== socketId)
+    allSeller = allSeller.filter(c => c.socketId !== socketId)
+}
+
 io.on('connection', (soc) => {
     console.log('socket server running..')
 
-    soc.on('add_user',(customerId,userInfo)=>{
-        addUser(customerId,soc.id,userInfo)
-         
-   })
+    soc.on('add_user', (customerId, userInfo) => {
+        console.log("Backend add_user")
+        addUser(customerId, soc.id, userInfo)
+        console.log(allSeller)
+        io.emit('activeSeller', allSeller)
+
+    })
+    soc.on('add_seller',(sellerId, userInfo) => {
+        console.log("Backend add_seller")
+        addSeller(sellerId,soc.id,userInfo)
+        io.emit('activeSeller', allSeller) 
+     })
+    soc.on('send_seller_message', (msg) => {
+        // console.log(msg)
+        const customer = findCustomer(msg.receverId)
+        if (customer !== undefined) {
+            soc.to(customer.socketId).emit('seller_message', msg)
+        }
+    })
+    soc.on('disconnect',() => {
+        console.log('user disconnect')
+        remove(soc.id)
+        console.log(allSeller) 
+        io.emit('activeSeller', allSeller)
+    })
+
 })
+
+
 require('dotenv').config()
 
 app.use(bodyParser.json())
 app.use(cookieParser())
 
-app.use('/api/home',require('./routes/home/homeRoutes'))
-app.use('/api',require('./routes/authRoutes'))
-app.use('/api',require('./routes/dashboard/categoryRoutes'))
-app.use('/api',require('./routes/dashboard/productRoutes'))
-app.use('/api',require('./routes/dashboard/sellerRoutes'))
-app.use('/api',require('./routes/home/customerAuthRoutes'))
-app.use('/api',require('./routes/home/cardRoutes'))
-app.use('/api',require('./routes/order/orderRoutes'))
-app.use('/api',require('./routes/chatRoutes'))
+app.use('/api/home', require('./routes/home/homeRoutes'))
+app.use('/api', require('./routes/authRoutes'))
+app.use('/api', require('./routes/dashboard/categoryRoutes'))
+app.use('/api', require('./routes/dashboard/productRoutes'))
+app.use('/api', require('./routes/dashboard/sellerRoutes'))
+app.use('/api', require('./routes/home/customerAuthRoutes'))
+app.use('/api', require('./routes/home/cardRoutes'))
+app.use('/api', require('./routes/order/orderRoutes'))
+app.use('/api', require('./routes/chatRoutes'))
 
-app.get('/', (req,res)=>res.send('Hello Server'))
+app.get('/', (req, res) => res.send('Hello Server'))
 const port = process.env.PORT;
 server.listen(port, () => console.log(`Server is running on port ${port}`))
 dbConnect()

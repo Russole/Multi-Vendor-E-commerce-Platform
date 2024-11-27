@@ -153,14 +153,14 @@ class orderController {
         }
     }
     // End Method
-    get_admin_orders = async(req, res) => {
-        let {page,searchValue,parPage} = req.query
+    get_admin_orders = async (req, res) => {
+        let { page, searchValue, parPage } = req.query
         page = parseInt(page)
-        parPage= parseInt(parPage)
+        parPage = parseInt(parPage)
         const skipPage = parPage * (page - 1)
         try {
             if (searchValue) {
-                
+
             } else {
                 const orders = await customerOrder.aggregate([
                     {
@@ -171,7 +171,7 @@ class orderController {
                             as: 'suborder'
                         }
                     }
-                ]).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                ]).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
                 const totalOrder = await customerOrder.aggregate([
                     {
                         $lookup: {
@@ -182,12 +182,51 @@ class orderController {
                         }
                     }
                 ])
-                responseReturn(res,200, { orders, totalOrder: totalOrder.length })
+                responseReturn(res, 200, { orders, totalOrder: totalOrder.length })
             }
         } catch (error) {
             console.log(error.message)
-        } 
-     }
-      // End Method 
+        }
+    }
+    // End Method
+
+    get_admin_order = async (req, res) => {
+        const { orderId } = req.params
+        try {
+            const order = await customerOrder.aggregate([
+                {
+                    $match: { _id: new ObjectId(orderId) }
+                },
+                {
+                    $lookup: {
+                        from: 'authororders',
+                        localField: "_id",
+                        foreignField: 'orderId',
+                        as: 'suborder'
+                    }
+                }
+            ])
+            responseReturn(res, 200, { order: order[0] })
+        } catch (error) {
+            console.log('get admin order details' + error.message)
+        }
+    }
+    // End Method
+
+    admin_order_status_update = async(req, res) => {
+        const { orderId } = req.params
+        const { status } = req.body
+        try {
+            await customerOrder.findByIdAndUpdate(orderId, {
+                delivery_status : status
+            })
+            responseReturn(res,200, {message: 'order Status change success'})
+        } catch (error) {
+            console.log('get admin status error' + error.message)
+            responseReturn(res,500, {message: 'internal server error'})
+        }
+         
+    }
+    // End Method 
 }
 module.exports = new orderController()

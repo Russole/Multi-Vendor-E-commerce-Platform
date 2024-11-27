@@ -21,6 +21,7 @@ app.use(cors({
 
 var allCustomer = []
 var allSeller = []
+let admin = {}
 
 const io = socket(server, {
     cors: {
@@ -28,8 +29,6 @@ const io = socket(server, {
         credentials: true
     }
 })
-
-var allCustomer = []
 
 const addUser = (customerId, socketId, userInfo) => {
     const checkUser = allCustomer.some(u => u.customerId === customerId)
@@ -95,6 +94,13 @@ io.on('connection', (soc) => {
             soc.to(seller.socketId).emit('customer_message', msg)
         }
     })
+    soc.on('add_admin',(adminInfo) => {
+        delete adminInfo.email
+        delete adminInfo.password
+        admin = adminInfo
+        admin.socketId = soc.id  
+        io.emit('activeSeller', allSeller) 
+     })
     soc.on('disconnect',() => {
         console.log('user disconnect')
         remove(soc.id)

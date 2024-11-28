@@ -41,6 +41,7 @@ const Orders = () => {
              
             <th scope='col' className='py-3 px-4'>Order Id</th>
             <th scope='col' className='py-3 px-4'>Price</th>
+            <th scope='col' className='py-3 px-4'>Shipping fee</th>
             <th scope='col' className='py-3 px-4'>Payment Status</th>
             <th scope='col' className='py-3 px-4'>Order Status</th> 
             <th scope='col' className='py-3 px-4'>Date</th>
@@ -54,6 +55,7 @@ const Orders = () => {
                  
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>#{d._id}</td>
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>${d.price}</td>
+                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>${d.shipping_fee}</td>
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.payment_status} </td>
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.delivery_status}</td> 
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.date}</td>

@@ -42,6 +42,7 @@ const Shipping = () => {
     }
 
     const placeOrder = () => {
+        
         dispatch(place_order({
             price,
             products,
@@ -52,7 +53,7 @@ const Shipping = () => {
             navigate 
         }))
     }
-
+    
     return (
         <div>
             <Header />

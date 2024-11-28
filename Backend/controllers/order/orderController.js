@@ -64,10 +64,12 @@ class orderController {
                     tempPro.quantity = pro[j].quantity
                     storePor.push(tempPro)
                 }
+                
                 authorOrderData.push({
                     orderId: order.id, sellerId,
                     products: storePor,
                     price: pri,
+                    shipping_fee: shipping_fee,
                     payment_status: 'unpaid',
                     shippingInfo: 'Easy Main Warehouse',
                     delivery_status: 'pending',
@@ -245,6 +247,13 @@ class orderController {
                 const totalOrder = await authOrderModel.find({
                     sellerId
                 }).countDocuments()
+                
+                // const orders = await customerOrder.find({
+                //     sellerId,
+                // }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                // const totalOrder = await customerOrder.find({
+                //     sellerId
+                // }).countDocuments()
                 responseReturn(res,200, {orders,totalOrder})
             }
             

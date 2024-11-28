@@ -27,7 +27,7 @@ const Card = () => {
     useEffect(() => {
         dispatch(get_card_products(userInfo.id))
     },[])
-    useEffect(() => { 
+    useEffect(() => {
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear())  
@@ -50,6 +50,8 @@ const Card = () => {
         }
     }
 
+    // console.log(card_products)
+    
     return (
         <div>
            <Header/>

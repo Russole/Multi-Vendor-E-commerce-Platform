@@ -15,6 +15,9 @@ const authSchema = new Schema({
     price: {
         type: Number,
         required : true  
+    },
+    shipping_fee: {
+        type: Number, 
     },     
     payment_status: {
         type: String,

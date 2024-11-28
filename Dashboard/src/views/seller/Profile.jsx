@@ -8,6 +8,7 @@ import { profile_image_upload, messageClear, profile_info_add } from '../../stor
 import toast from 'react-hot-toast';
 import { PropagateLoader } from 'react-spinners';
 import { overrideStyle } from '../../utils/utils'; 
+import { create_stripe_connect_account } from '../../store/Reducers/sellerReducer';
 
 const Profile = () => {
     const [state, setState] =  useState({
@@ -20,8 +21,6 @@ const Profile = () => {
     const dispatch = useDispatch()
     const { userInfo,loader,successMessage } = useSelector(state => state.auth)
     
-    const status = 'active'
-
     useEffect(() => {
         if (successMessage) {
             toast.success(successMessage)
@@ -48,6 +47,8 @@ const Profile = () => {
         e.preventDefault()
         dispatch(profile_info_add(state))
     }
+
+    console.log(userInfo.payment)
 
     return (
         <div className='px-2 lg:px-7 py-5'>
@@ -108,7 +109,7 @@ const Profile = () => {
                     <span>Payment Account : </span>
                      <p>
                         {
-                            status === 'active' ? <span className='bg-red-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>{userInfo.payment}</span> : <span className='bg-blue-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>Click Active</span>
+                            userInfo.payment === 'active' ? <span className='bg-red-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>{userInfo.payment}</span> : <span onClick={()=> dispatch(create_stripe_connect_account())}  className='bg-blue-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>Click Active</span>
                         }
                      </p>
                 </div> 

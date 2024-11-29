@@ -23,10 +23,12 @@ jobs:
       run: sudo docker rm -f e-commerce-backend-container || true
     - name: Delete Old mongo db docker container
       run: sudo docker rm -f e-commerce-database-container || true
+    - name: create E-commerce docker network
+      run: docker network create e-commerce-net || true
     - name: Run frontend Docker Container
-      run: sudo docker run -d -p 3000:3000 --name e-commerce-frontend-container russole/e-commerce-frontend
+      run: sudo docker run -d -p 3000:3000 --name e-commerce-frontend-container --network e-commerce-net russole/e-commerce-frontend
     - name: Run backend Docker Container
-      run: sudo docker run -d -p 5000:5000 --name e-commerce-backend-container russole/e-commerce-backend
+      run: sudo docker run -d -p 5000:5000 --name e-commerce-backend-container --network e-commerce-net russole/e-commerce-backend
     - name: Run Mongo DB Docker Container
-      run: sudo docker run --name e-commerce-database-container -d mongo:latest
+      run: sudo docker run --name e-commerce-database-container -d --network e-commerce-net mongo:latest
 

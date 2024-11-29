@@ -21,6 +21,8 @@ jobs:
       run: sudo docker rm -f e-commerce-frontend-container || true
     - name: Delete Old backend docker container
       run: sudo docker rm -f e-commerce-backend-container || true
+    - name: Delete Old backend docker container
+      run: sudo docker rm -f e-commerce-backend-container || true
     - name: Run frontend Docker Container
       run: sudo docker run -d -p 3000:3000 --name e-commerce-frontend-container russole/e-commerce-frontend
     - name: Run backend Docker Container

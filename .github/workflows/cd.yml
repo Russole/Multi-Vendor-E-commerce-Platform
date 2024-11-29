@@ -1,0 +1,30 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+
+  build:
+
+    runs-on: self-hosted # Workflow Jobs Runs on AWS EC2 Server，not Github Hosted Server(That's why self-hosted), pulling Docker Image and running the Docker Container
+
+    steps:
+    - name: Pull frontend Docker image
+      run: sudo docker pull russole/e-commerce-frontend
+    - name: Pull backend Docker image
+      run: sudo docker pull russole/e-commerce-backend
+    - name: Delete Old frontend docker container
+      run: sudo docker rm -f e-commerce-frontend-container || true
+    - name: Delete Old backend docker container
+      run: sudo docker rm -f e-commerce-backend-container || true
+    - name: Run frontend Docker Container
+      run: sudo docker run -d -p 3000:3000 --name e-commerce-frontend-container russole/e-commerce-frontend
+    - name: Run backend Docker Container
+      run: sudo docker run -d -p 5000:5000 --name e-commerce-backend-container russole/e-commerce-backend
+    - name: Run Mongo DB Docker Container
+      run: sudo docker run --name e-commerce-database-container -d mongo:latest
+

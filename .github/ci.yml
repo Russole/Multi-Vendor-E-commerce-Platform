@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      persist-credentials: false
+      # persist-credentials: false
     - name: Login Dockerhub
       env:
         DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
@@ -28,6 +28,8 @@ jobs:
       run: docker push russole/e-commerce-frontend
     - name: Backend image push to Dockerhub
       run: docker push russole/e-commerce-backend
+
+      
 
 
 

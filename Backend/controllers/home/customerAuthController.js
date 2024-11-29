@@ -1,7 +1,7 @@
 
 const customerModel = require('../../models/customerModel')
 const { responseReturn } = require('../../utils/response')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const sellerCustomerModel = require('../../models/chat/sellerCustomerModel')
 const {createToken} = require('../../utils/tokenCreate')
 

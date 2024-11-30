@@ -13,13 +13,13 @@ const { dbConnect } = require('./utils/db')
 const socket = require('socket.io')
 const http = require('http')
 const server = http.createServer(app)
-// app.use(cors({
-//     origin: ['http://localhost:3000', 'http://localhost:3001'],
-//     credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
-// })) // Middleware to handle cross-origin requests in CORS
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://3.83.191.210:3000/'],
+    credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
+})) // Middleware to handle cross-origin requests in CORS
 // It means that requests from only these two origins will be allowed
 
-app.use(cors());
+
 var allCustomer = []
 var allSeller = []
 let admin = {}

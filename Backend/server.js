@@ -19,7 +19,10 @@ const server = http.createServer(app)
 // })) // Middleware to handle cross-origin requests in CORS
 // It means that requests from only these two origins will be allowed
 
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    credentials: true
+}));
 
 var allCustomer = []
 var allSeller = []

@@ -14,7 +14,7 @@ const socket = require('socket.io')
 const http = require('http')
 const server = http.createServer(app)
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://3.83.191.210:3000/','http://localhost:5000'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://3.83.191.210:3000/'],
     credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
 })) // Middleware to handle cross-origin requests in CORS
 // It means that requests from only these two origins will be allowed

@@ -3,8 +3,8 @@ name: CI Pipeline
 on:
   push:
     branches:
-    - frontend
-    - Aws-Deployment
+    - "frontend"
+    - "Aws-Deployment"
 
 jobs:
 

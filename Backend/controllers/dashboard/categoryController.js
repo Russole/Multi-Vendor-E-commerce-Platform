@@ -71,6 +71,9 @@ class categoryController {
             }
             else if (searchValue === '' && page && parPage) {
 
+                // .skip(skipPage) // 跳過指定數量的商品
+                // .limit(parPage) // 限制每頁返回的商品數量
+                // sort({ createdAt: -1 }):descending order, most recent appear first
                 const categorys = await categoryModel.find({}).skip(skipPage).limit(parPage).sort({ createdAt: -1 });
                 const totalCategory = await categoryModel.find({}).countDocuments();
                 responseReturn(res, 200, { categorys, totalCategory });

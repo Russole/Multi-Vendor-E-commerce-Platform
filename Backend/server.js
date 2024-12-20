@@ -13,16 +13,16 @@ const { dbConnect } = require('./utils/db')
 const socket = require('socket.io')
 const http = require('http')
 const server = http.createServer(app)
-// app.use(cors({
-//     origin: ['http://localhost:3000', 'http://localhost:3001', 'http://3.83.191.210:3000/'],
-//     credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
-// })) // Middleware to handle cross-origin requests in CORS
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true // cross-origin requests are allowed to carry authentication information (such as cookies)
+})) // Middleware to handle cross-origin requests in CORS
 // It means that requests from only these two origins will be allowed
 
-app.use(cors({
-    origin: '*',
-    credentials: true
-}));
+// app.use(cors({
+//     origin: '*',
+//     credentials: true
+// }));
 
 var allCustomer = []
 var allSeller = []
@@ -47,7 +47,7 @@ const addUser = (customerId, socketId, userInfo) => {
     }
 }
 
-const addSeller = (sellerId,socketId,userInfo) => {
+const addSeller = (sellerId, socketId, userInfo) => {
     const checkSeller = allSeller.some(u => u.sellerId === sellerId)
     if (!checkSeller) {
         allSeller.push({
@@ -56,7 +56,7 @@ const addSeller = (sellerId,socketId,userInfo) => {
             userInfo
         })
     }
-} 
+}
 
 const findCustomer = (customerId) => {
     return allCustomer.find(c => c.customerId === customerId)
@@ -81,11 +81,11 @@ io.on('connection', (soc) => {
         io.emit('activeSeller', allSeller)
 
     })
-    soc.on('add_seller',(sellerId, userInfo) => {
+    soc.on('add_seller', (sellerId, userInfo) => {
         console.log("Backend add_seller")
-        addSeller(sellerId,soc.id,userInfo)
-        io.emit('activeSeller', allSeller) 
-     })
+        addSeller(sellerId, soc.id, userInfo)
+        io.emit('activeSeller', allSeller)
+    })
     soc.on('send_seller_message', (msg) => {
         // console.log(msg)
         const customer = findCustomer(msg.receverId)
@@ -93,32 +93,32 @@ io.on('connection', (soc) => {
             soc.to(customer.socketId).emit('seller_message', msg)
         }
     })
-    soc.on('send_customer_message',(msg) => {
+    soc.on('send_customer_message', (msg) => {
         const seller = findSeller(msg.receverId)
         if (seller !== undefined) {
             soc.to(seller.socketId).emit('customer_message', msg)
         }
     })
-    soc.on('add_admin',(adminInfo) => {
+    soc.on('add_admin', (adminInfo) => {
         delete adminInfo.email
         delete adminInfo.password
         admin = adminInfo
-        admin.socketId = soc.id  
-        io.emit('activeSeller', allSeller) 
-     })
-    soc.on('send_message_admin_to_seller',(msg) => {
+        admin.socketId = soc.id
+        io.emit('activeSeller', allSeller)
+    })
+    soc.on('send_message_admin_to_seller', (msg) => {
         const seller = findSeller(msg.receverId)
         if (seller !== undefined) {
             soc.to(seller.socketId).emit('receved_admin_message', msg)
         }
     })
-    soc.on('disconnect',() => {
+    soc.on('disconnect', () => {
         console.log('user disconnect')
         remove(soc.id)
-        console.log(allSeller) 
+        console.log(allSeller)
         io.emit('activeSeller', allSeller)
     })
-    soc.on('send_message_seller_to_admin',(msg) => { 
+    soc.on('send_message_seller_to_admin', (msg) => {
         if (admin.socketId) {
             soc.to(admin.socketId).emit('receved_seller_message', msg)
         }
@@ -141,7 +141,7 @@ app.use('/api', require('./routes/home/customerAuthRoutes'))
 app.use('/api', require('./routes/home/cardRoutes'))
 app.use('/api', require('./routes/order/orderRoutes'))
 app.use('/api', require('./routes/chatRoutes'))
-app.use('/api',require('./routes/paymentRoutes'))
+app.use('/api', require('./routes/paymentRoutes'))
 
 app.get('/', (req, res) => res.send('Hello Server'))
 const port = process.env.PORT;

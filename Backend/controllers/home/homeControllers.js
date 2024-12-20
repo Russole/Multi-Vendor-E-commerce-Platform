@@ -8,6 +8,7 @@ const { mongo: { ObjectId } } = require('mongoose');
 
 class homeControllers {
 
+    // 將商品3個分一組
     formateProduct = (products) => {
         const productArray = [];
         let i = 0;
@@ -129,7 +130,8 @@ class homeControllers {
     // end method
 
     product_details = async (req, res) => {
-        const { slug } = req.params
+        const { slug } = req.params // 從路徑參數提取 slug
+
         try {
             const product = await productModel.findOne({ slug })
 
@@ -173,7 +175,7 @@ class homeControllers {
 
     submit_review = async (req, res) => {
         const { productId, rating, review, name } = req.body
-        console.log(name)
+        console.log(req.body)
         try {
             await reviewModel.create({
                 productId,
@@ -207,28 +209,31 @@ class homeControllers {
     // end method
 
     get_reviews = async (req, res) => {
-        const { productId } = req.params
-        let { pageNo } = req.query
+        const { productId } = req.params // 路徑參數
+
+        let { pageNo } = req.query // 查詢參數
         pageNo = parseInt(pageNo)
         const limit = 5
         const skipPage = limit * (pageNo - 1)
+
         try {
+            // reviewModel 執行 aggregate
             let getRating = await reviewModel.aggregate([{
-                $match: {
+                $match: { // match 就取出來執行聚合
                     productId: {
-                        $eq: new ObjectId(productId)
+                        $eq: new ObjectId(productId) // 特定的product id
                     },
                     rating: {
-                        $not: {
+                        $not: { // 保留 rating 陣列 size 不為0的document
                             $size: 0
                         }
                     }
                 }
             },
-            {
+            {   // 將 rating 陣列拆解為單個評分值
                 $unwind: "$rating"
             },
-            {
+            {   // 以rating為基準, 計算每個rating值共有幾個
                 $group: {
                     _id: "$rating",
                     count: {
@@ -236,7 +241,7 @@ class homeControllers {
                     }
                 }
             }
-            ])
+            ]) // aggregate result example : [ { _id: 5, count: 5 }, { _id: 4, count: 2 } ]
             let rating_review = [{
                 rating: 5,
                 sum: 0

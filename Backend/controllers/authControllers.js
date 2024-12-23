@@ -13,16 +13,18 @@ class authControllers {
         const { email, password } = req.body
 
         try {
+            // 如果模型的 password 欄位在 schema 中被標記為不返回（例如 select: false）， 
+            // 那麼 .select('+password') 可以覆蓋預設行為，將 password 欄位包括在結果中。
             const admin = await adminModel.findOne({ email }).select('+password')
-            // console.log(admin)
             if (admin) {
                 const match = await bcrpty.compare(password, admin.password)
-                // console.log(match)
                 if (match) {
                     const token = await createToken({
                         id: admin.id,
                         role: admin.role
                     })
+
+                    // 將JWT token 以名稱為 accessToken 的 cookie 的方式回覆給 admin 登入者
                     res.cookie('accessToken', token, {
                         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     })
@@ -41,10 +43,8 @@ class authControllers {
         const { email, password } = req.body
         try {
             const seller = await sellerModel.findOne({ email }).select('+password')
-            // console.log(admin)
             if (seller) {
                 const match = await bcrpty.compare(password, seller.password)
-                // console.log(match)
                 if (match) {
                     const token = await createToken({
                         id: seller.id,
@@ -100,8 +100,7 @@ class authControllers {
     // End Method
 
     getUser = async (req, res) => {
-        const { id, role } = req;
-
+        const { id, role } = req; // 由 authMiddleware 驗證 JWT token 獲得
         try {
             if (role === 'admin') {
                 const user = await adminModel.findById(id)

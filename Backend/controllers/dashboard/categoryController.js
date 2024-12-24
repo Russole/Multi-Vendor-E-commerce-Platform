@@ -23,8 +23,9 @@ class categoryController {
                     secure: true
                 });
 
-                try {
+                console.log(image)
 
+                try {
                     const result = await cloudinary.uploader.upload(image.filepath, { folder: 'categorys' });
 
                     if (result) {
@@ -53,7 +54,8 @@ class categoryController {
     // end method
 
     get_category = async (req, res) => {
-        const { page, searchValue, parPage } = req.query;
+        // parPage:每頁的商品數量
+        const { page, searchValue, parPage } = req.query; // http://localhost:5000/api/category-get?page=1&searchValue=Baseball Cap&parPage=1
 
         try {
             let skipPage = '';

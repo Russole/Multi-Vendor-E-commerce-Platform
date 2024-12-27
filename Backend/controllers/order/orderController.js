@@ -308,5 +308,11 @@ class orderController {
         }
     }
     // End Method
+
+    order_confirm = async (req, res) => {
+        const { orderId } = req.params
+        console.log(orderId)
+    }
+    // End Method 
 }
 module.exports = new orderController()

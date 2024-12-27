@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import axios from 'axios';
 import CheckoutForm from './CheckoutForm';
-const stripePromise = loadStripe('pk_live_51QQ0s9D0Czud5bUaMfxgREm42oapKnPuUgdPIEnXNUZzQqBLCbE1HvN51TbYnNTSaC95Pb4pg2w9QA4Hq2ymgErC00DCO6CLhB');
+const stripePromise = loadStripe('pk_test_51QQ0s9D0Czud5bUaPGUdwRuL7LGPG07G6Y6jo2Dz2LWMRdDDxMggBBM9m9qIVx8ZBWwNwh7CoPvFEWa5tlSxIqII003UPiNMhZ');
 
 const Stripe = ({ price, orderId }) => {
     const [clientSecret, setClientSecret] = useState('');

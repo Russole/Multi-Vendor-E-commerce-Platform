@@ -12,6 +12,22 @@ const CheckoutForm = ({ orderId }) => {
     }
     const submit = async (e) => {
         e.preventDefault()
+        if (!stripe || !elements) {
+            return
+        }
+        setIsLoading(true)
+        const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: 'http://localhost:3000/order/confirm'
+            }
+        })
+        if (error.type === 'card_error' || error.type === 'validation_error') {
+            setMessage(error.message)
+        } else {
+            setMessage('An Unexpected error occured')
+        }
+        setIsLoading(false)
     }
     return <form onSubmit={submit} id='payment-form'>
         <LinkAuthenticationElement id='link-authentication-element' />

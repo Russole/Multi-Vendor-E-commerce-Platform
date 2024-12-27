@@ -5,7 +5,7 @@ import axios from 'axios';
 import CheckoutForm from './CheckoutForm';
 const stripePromise = loadStripe('pk_test_51QQ0s9D0Czud5bUaPGUdwRuL7LGPG07G6Y6jo2Dz2LWMRdDDxMggBBM9m9qIVx8ZBWwNwh7CoPvFEWa5tlSxIqII003UPiNMhZ');
 
-const Stripe = ({ price, orderId }) => {
+const Stripe = ({ orderID, price }) => {
     const [clientSecret, setClientSecret] = useState('');
     const apperance = { theme: 'stripe' }
     const options = { apperance, clientSecret }
@@ -24,7 +24,7 @@ const Stripe = ({ price, orderId }) => {
             {
                 clientSecret ? (
                     <Elements options={options} stripe={stripePromise}>
-                        <CheckoutForm orderId={orderId} />
+                        <CheckoutForm orderId={orderID} />
                     </Elements>
                 ) : <button onClick={create_payment} className='px-10 py-[6px] rounded-sm
                  hover:shadow-green-700/30 hover:shadow-lg 

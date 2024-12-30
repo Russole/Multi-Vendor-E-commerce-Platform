@@ -1,8 +1,10 @@
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { MdCurrencyExchange, MdProductionQuantityLimits } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
-import { get_seller_payment_details } from '../../store/Reducers/PaymentReducer';
+import { get_seller_payment_details, messageClear, send_withdrawal_request } from '../../store/Reducers/PaymentReducer';
+import toast from 'react-hot-toast';
+import moment from 'moment';
 
 function handleOnWheel({ deltaY }) {
     console.log('handleOnWheel', deltaY)
@@ -19,24 +21,46 @@ const Payments = () => {
     const { successMessage, errorMessage, loader, pendingWithdraws, successWithdraws, totalAmount, withdrawAmount, pendingAmount,
         availableAmount, } = useSelector(state => state.payment)
 
-    useEffect(() => {
-        dispatch(get_seller_payment_details(userInfo._id))
-    }, [])
+    const [amount, setAmount] = useState(0)
+    const sendRequest = (e) => {
+        e.preventDefault()
+        if (availableAmount - amount > 10) {
+            dispatch(send_withdrawal_request({ amount, sellerId: userInfo._id }))
+            setAmount(0)
+        } else {
+            toast.error('Insufficient Balance')
+        }
+    }
 
     const Row = ({ index, style }) => {
         return (
             <div style={style} className='flex text-sm text-white font-medium'>
                 <div className='w-[25%] p-2 whitespace-nowrap'>{index + 1}</div>
-                <div className='w-[25%] p-2 whitespace-nowrap'>$3434</div>
+                <div className='w-[25%] p-2 whitespace-nowrap'>${pendingWithdraws[index]?.amount}</div>
                 <div className='w-[25%] p-2 whitespace-nowrap'>
-                    <span className='py-[1px] px-[5px] bg-slate-300 text-blue-500 rounded-md text-sm'>Pending</span>
+                    <span className='py-[1px] px-[5px] bg-slate-300 text-blue-500 rounded-md text-sm'>{pendingWithdraws[index]?.status}</span>
                 </div>
-                <div className='w-[25%] p-2 whitespace-nowrap'> 25 Dec 2023 </div>
+                <div className='w-[25%] p-2 whitespace-nowrap'> {moment(pendingWithdraws[index]?.createdAt).format('LL')} </div>
 
 
             </div>
         )
     }
+
+    useEffect(() => {
+        dispatch(get_seller_payment_details(userInfo._id))
+    }, [])
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage)
+            dispatch(messageClear())
+        }
+        if (errorMessage) {
+            toast.error(errorMessage)
+            dispatch(messageClear())
+        }
+    }, [successMessage, errorMessage])
 
 
     return (
@@ -96,10 +120,11 @@ const Payments = () => {
                 <div className='bg-[#6a5fdf] text-[#d0d2d6] rounded-md p-5'>
                     <h2 className='text-lg'>Send Request</h2>
                     <div className='pt-5 mb-5'>
-                        <form>
+                        <form onSubmit={sendRequest}>
                             <div className='flex gap-3 flex-wrap'>
-                                <input min='0' type="number" className='px-3 py-2 md:w-[75%] focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' name='amount' />
-                                <button className='bg-red-500  hover:shadow-red-500/40 hover:shadow-md text-white rounded-md px-7 py-2'>Submit</button>
+
+                                <input onChange={(e) => setAmount(e.target.value)} value={amount} min='0' type="number" className='px-3 py-2 md:w-[75%] focus:border-indigo-200 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' name='amount' />
+                                <button disabled={loader} className='bg-red-500  hover:shadow-red-500/40 hover:shadow-md text-white rounded-md px-7 py-2'>{loader ? 'loading..' : 'Submit'}</button>
 
                             </div>
                         </form>
@@ -120,7 +145,7 @@ const Payments = () => {
                                     style={{ minWidth: '340px' }}
                                     className='List'
                                     height={350}
-                                    itemCount={10}
+                                    itemCount={pendingWithdraws.length}
                                     itemSize={35}
                                     outerElementType={outerElementType}
                                 >

@@ -7,5 +7,6 @@ router.put('/payment/active-stripe-connect-account/:activeCode', authMiddleware,
 
 
 router.get('/payment/seller-payment-details/:sellerId', authMiddleware, paymentController.get_seller_payment_details)
+router.post('/payment/withdrawal-request', authMiddleware, paymentController.withdrawal_request)
 
 module.exports = router 

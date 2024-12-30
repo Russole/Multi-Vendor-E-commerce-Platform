@@ -1,5 +1,9 @@
 const stripeModel = require('../../models/stripeModel');
 const sellerModel = require('../../models/sellerModel')
+
+const sellerWallet = require('../../models/sellerWallet')
+const withdrawRequest = require('../../models/withdrawRequest')
+
 const { v4: uuidv4 } = require('uuid');
 const stripe = require('stripe')('sk_test_51QQ0s9D0Czud5bUaeKjI3gri5LFzcaYVfSdWk4HN4C8926y8NCQ0xFNREyaqZvGRj3paK6oid6F3Kzs0EkTG72wc00SjmjIH75');
 const { responseReturn } = require('../../utils/response')
@@ -65,6 +69,71 @@ class paymentController {
         } catch (error) {
             responseReturn(res, 500, { message: 'Internal Server Error' })
         }
+    }
+    // End Method
+
+    sumAmount = (data) => {
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+            sum = sum + data[i].amount;
+        }
+        return sum
+    }
+
+    get_seller_payment_details = async (req, res) => {
+        const { sellerId } = req.params;
+
+        try {
+            const payments = await sellerWallet.find({ sellerId });
+            const pendingWithdraws = await withdrawRequest.find({
+                $and: [
+                    {
+                        sellerId: {
+                            $eq: sellerId
+                        }
+                    },
+                    {
+                        status: {
+                            $eq: 'pending'
+                        }
+                    }
+                ]
+            })
+            const successWithdraws = await withdrawRequest.find({
+                $and: [
+                    {
+                        sellerId: {
+                            $eq: sellerId
+                        }
+                    },
+                    {
+                        status: {
+                            $eq: 'success'
+                        }
+                    }
+                ]
+            })
+            const pendingAmount = this.sumAmount(pendingWithdraws)
+            const withdrawAmount = this.sumAmount(successWithdraws)
+            const totalAmount = this.sumAmount(payments)
+            let availableAmount = 0;
+            if (totalAmount > 0) {
+                availableAmount = totalAmount - (pendingAmount + withdrawAmount)
+            }
+
+            responseReturn(res, 200, {
+                totalAmount,
+                pendingAmount,
+                withdrawAmount,
+                availableAmount,
+                pendingWithdraws,
+                successWithdraws
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+
     }
     // End Method
 }

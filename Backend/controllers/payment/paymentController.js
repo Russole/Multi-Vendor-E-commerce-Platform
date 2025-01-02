@@ -1,8 +1,8 @@
 const stripeModel = require('../../models/stripeModel');
 const sellerModel = require('../../models/sellerModel')
-
 const sellerWallet = require('../../models/sellerWallet')
 const withdrawRequest = require('../../models/withdrawRequest')
+const { mongo: { ObjectId } } = require('mongoose')
 
 const { v4: uuidv4 } = require('uuid');
 const stripe = require('stripe')('sk_test_51QQ0s9D0Czud5bUaeKjI3gri5LFzcaYVfSdWk4HN4C8926y8NCQ0xFNREyaqZvGRj3paK6oid6F3Kzs0EkTG72wc00SjmjIH75');
@@ -149,5 +149,36 @@ class paymentController {
         }
     }
     // End Method
+
+    get_payment_request = async (req, res) => {
+        try {
+            const withdrawalRequest = await withdrawRequest.find({ status: 'pending' })
+            responseReturn(res, 200, { withdrawalRequest })
+        } catch (error) {
+            responseReturn(res, 500, { message: 'Internal Server Error' })
+        }
+    }
+    // End Method
+
+    payment_request_confirm = async (req, res) => {
+        const { paymentId } = req.body
+        try {
+            const payment = await withdrowRequest.findById(paymentId)
+            const { stripeId } = await stripeModel.findOne({
+                sellerId: new ObjectId(payment.sellerId)
+            })
+            await stripe.transfers.create({
+                amount: payment.amount * 100,
+                currency: 'usd',
+                destination: stripeId
+            })
+
+            await withdrowRequest.findByIdAndUpdate(paymentId, { status: 'success' })
+            responseReturn(res, 200, { payment, message: 'Request Confirm Success' })
+        } catch (error) {
+            responseReturn(res, 500, { message: 'Internal Server Error' })
+        }
+    }
+    // End Method 
 }
 module.exports = new paymentController()

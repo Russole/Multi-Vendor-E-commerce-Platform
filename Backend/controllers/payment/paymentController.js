@@ -163,7 +163,7 @@ class paymentController {
     payment_request_confirm = async (req, res) => {
         const { paymentId } = req.body
         try {
-            const payment = await withdrowRequest.findById(paymentId)
+            const payment = await withdrawRequest.findById(paymentId)
             const { stripeId } = await stripeModel.findOne({
                 sellerId: new ObjectId(payment.sellerId)
             })
@@ -173,9 +173,10 @@ class paymentController {
                 destination: stripeId
             })
 
-            await withdrowRequest.findByIdAndUpdate(paymentId, { status: 'success' })
+            await withdrawRequest.findByIdAndUpdate(paymentId, { status: 'success' })
             responseReturn(res, 200, { payment, message: 'Request Confirm Success' })
         } catch (error) {
+            console.log(error)
             responseReturn(res, 500, { message: 'Internal Server Error' })
         }
     }

@@ -4,6 +4,9 @@ const cardModel = require('../../models/cardModel')
 const moment = require("moment")
 const { responseReturn } = require('../../utils/response')
 const { mongo: { ObjectId } } = require('mongoose')
+const myShopWallet = require('../../models/myShopWallet')
+const sellerWallet = require('../../models/sellerWallet')
+const stripe = require('stripe')('sk_test_51QQ0s9D0Czud5bUaeKjI3gri5LFzcaYVfSdWk4HN4C8926y8NCQ0xFNREyaqZvGRj3paK6oid6F3Kzs0EkTG72wc00SjmjIH75')
 
 class orderController {
 
@@ -64,7 +67,7 @@ class orderController {
                     tempPro.quantity = pro[j].quantity
                     storePor.push(tempPro)
                 }
-                
+
                 authorOrderData.push({
                     orderId: order.id, sellerId,
                     products: storePor,
@@ -215,58 +218,58 @@ class orderController {
     }
     // End Method
 
-    admin_order_status_update = async(req, res) => {
+    admin_order_status_update = async (req, res) => {
         const { orderId } = req.params
         const { status } = req.body
         try {
             await customerOrder.findByIdAndUpdate(orderId, {
-                delivery_status : status
+                delivery_status: status
             })
-            responseReturn(res,200, {message: 'order Status change success'})
+            responseReturn(res, 200, { message: 'order Status change success' })
         } catch (error) {
             console.log('get admin status error' + error.message)
-            responseReturn(res,500, {message: 'internal server error'})
+            responseReturn(res, 500, { message: 'internal server error' })
         }
-         
+
     }
     // End Method
-    
-    get_seller_orders = async (req,res) => {
-        const {sellerId} = req.params
-        let {page,searchValue,parPage} = req.query
+
+    get_seller_orders = async (req, res) => {
+        const { sellerId } = req.params
+        let { page, searchValue, parPage } = req.query
         page = parseInt(page)
-        parPage= parseInt(parPage)
+        parPage = parseInt(parPage)
         const skipPage = parPage * (page - 1)
         try {
             if (searchValue) {
-                
+
             } else {
                 const orders = await authOrderModel.find({
                     sellerId,
-                }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
                 const totalOrder = await authOrderModel.find({
                     sellerId
                 }).countDocuments()
-                
+
                 // const orders = await customerOrder.find({
                 //     sellerId,
                 // }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
                 // const totalOrder = await customerOrder.find({
                 //     sellerId
                 // }).countDocuments()
-                responseReturn(res,200, {orders,totalOrder})
+                responseReturn(res, 200, { orders, totalOrder })
             }
-            
+
         } catch (error) {
-         console.log('get seller Order error' + error.message)
-         responseReturn(res,500, {message: 'internal server error'})
+            console.log('get seller Order error' + error.message)
+            responseReturn(res, 500, { message: 'internal server error' })
         }
     }
     // End Method
 
-    get_seller_order = async (req,res) => {
+    get_seller_order = async (req, res) => {
         const { orderId } = req.params
-        
+
         try {
             const order = await authOrderModel.findById(orderId)
             responseReturn(res, 200, { order })
@@ -276,19 +279,71 @@ class orderController {
     }
     // End Method
 
-    seller_order_status_update = async(req,res) => {
-        const {orderId} = req.params
+    seller_order_status_update = async (req, res) => {
+        const { orderId } = req.params
         const { status } = req.body
         try {
-            await authOrderModel.findByIdAndUpdate(orderId,{
+            await authOrderModel.findByIdAndUpdate(orderId, {
                 delivery_status: status
             })
-            responseReturn(res,200, {message: 'order status updated successfully'})
+            responseReturn(res, 200, { message: 'order status updated successfully' })
         } catch (error) {
             console.log('get seller Order error' + error.message)
-            responseReturn(res,500, {message: 'internal server error'})
+            responseReturn(res, 500, { message: 'internal server error' })
         }
-      }
-      // End Method
+    }
+    // End Method
+
+    create_payment = async (req, res) => {
+        const { price } = req.body
+        try {
+            const payment = await stripe.paymentIntents.create({
+                amount: price * 100,
+                currency: 'usd',
+                automatic_payment_methods: {
+                    enabled: true
+                }
+            })
+            responseReturn(res, 200, { clientSecret: payment.client_secret })
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // End Method
+
+    order_confirm = async (req, res) => {
+        const { orderId } = req.params
+        try {
+            await customerOrder.findByIdAndUpdate(orderId, { payment_status: 'paid' })
+            await authOrderModel.updateMany({ orderId: new ObjectId(orderId) }, {
+                payment_status: 'paid', delivery_status: 'pending'
+            })
+            const cuOrder = await customerOrder.findById(orderId)
+            const auOrder = await authOrderModel.find({
+                orderId: new ObjectId(orderId)
+            })
+            const time = moment(Date.now()).format('l')
+            const splitTime = time.split('/')
+
+            await myShopWallet.create({
+                amount: cuOrder.price,
+                month: splitTime[0],
+                year: splitTime[2]
+            })
+            for (let i = 0; i < auOrder.length; i++) {
+                await sellerWallet.create({
+                    sellerId: auOrder[i].sellerId.toString(),
+                    amount: auOrder[i].price,
+                    month: splitTime[0],
+                    year: splitTime[2]
+                })
+            }
+            responseReturn(res, 200, { message: 'success' })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // End Method 
 }
 module.exports = new orderController()

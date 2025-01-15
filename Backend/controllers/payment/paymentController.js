@@ -141,7 +141,8 @@ class paymentController {
         try {
             const withdrawal = await withdrawRequest.create({
                 sellerId,
-                amount: parseInt(amount)
+                amount: parseInt(amount),
+                status: "success"
             })
             responseReturn(res, 200, { withdrawal, message: 'Withdrawal Request Send' })
         } catch (error) {

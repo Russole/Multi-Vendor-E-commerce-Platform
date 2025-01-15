@@ -97,7 +97,7 @@ export const PaymentReducer = createSlice({
             .addCase(send_withdrawal_request.fulfilled, (state, { payload }) => {
                 state.loader = false
                 state.successMessage = payload.message;
-                state.pendingWithdraws = [...state.pendingWithdraws, payload.withdrawal];
+                state.successWithdraws = [...state.successWithdraws, payload.withdrawal];
                 state.availableAmount = state.availableAmount - payload.withdrawal.amount;
                 state.pendingAmount = payload.withdrawal.amount;
             })

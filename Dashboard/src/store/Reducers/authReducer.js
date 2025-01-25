@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/api";
 import { jwtDecode } from "jwt-decode";
+import { socket } from '../../utils/utils';
 
 export const admin_login = createAsyncThunk(
     'auth/admin_login',
@@ -123,6 +124,7 @@ export const logout = createAsyncThunk(
 
         try {
             const { data } = await api.get('/logout', { withCredentials: true })
+            socket.emit('SellerLogout')
             localStorage.removeItem('accessToken')
             if (role === 'admin') {
                 navigate('/admin/login')

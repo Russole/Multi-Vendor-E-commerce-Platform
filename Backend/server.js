@@ -75,17 +75,22 @@ io.on('connection', (soc) => {
     console.log('socket server running..')
 
     soc.on('add_user', (customerId, userInfo) => {
-        console.log("Backend add_user")
-        addUser(customerId, soc.id, userInfo)
-        console.log(allSeller)
-        io.emit('activeSeller', allSeller)
-
+        console.log("Backend add_customer");
+        addUser(customerId, soc.id, userInfo);
+        console.log(allCustomer);
+        io.emit('activeCustomer', allCustomer);
+        io.emit('activeSeller', allSeller);
     })
     soc.on('add_seller', (sellerId, userInfo) => {
         console.log("Backend add_seller")
         addSeller(sellerId, soc.id, userInfo)
+        console.log(allSeller)
         io.emit('activeSeller', allSeller)
     })
+    soc.on('CheckExistCustomer', () => {
+        console.log('Server Check Get Exist Customer');
+        io.emit('activeCustomer', allCustomer);
+    });
     soc.on('send_seller_message', (msg) => {
         // console.log(msg)
         const customer = findCustomer(msg.receverId)
@@ -112,10 +117,23 @@ io.on('connection', (soc) => {
             soc.to(seller.socketId).emit('receved_admin_message', msg)
         }
     })
+    // 處理登出事件
+    soc.on('SellerLogout', () => {
+        console.log('Seller logged out:', soc.id);
+        remove(soc.id); // 執行斷線時的清理邏輯
+        io.emit('activeSeller', allSeller); // 廣播更新後的活躍用戶清單
+    });
+    // 處理登出事件
+    soc.on('CustomerLogout', () => {
+        console.log('Customer logged out:', soc.id);
+        remove(soc.id); // 執行斷線時的清理邏輯
+        console.log(allCustomer)
+        io.emit('activeCustomer', allCustomer); // 廣播更新後的活躍用戶清單
+    });
     soc.on('disconnect', () => {
-        console.log('user disconnect')
+        console.log(`user disconnect soc id:${soc.id}`)
         remove(soc.id)
-        console.log(allSeller)
+        console.log(`All Connected Seller${allSeller}`)
         io.emit('activeSeller', allSeller)
     })
     soc.on('send_message_seller_to_admin', (msg) => {

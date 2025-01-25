@@ -5,9 +5,8 @@ import { IoSend } from 'react-icons/io5'
 import { Link, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import io from 'socket.io-client'
-import { add_friend, send_message,updateMessage, messageClear } from '../../store/reducers/chatReducer';
-const socket = io('http://localhost:5000')
+import { add_friend, send_message, updateMessage, messageClear } from '../../store/reducers/chatReducer';
+import { socket } from '../../utils/utils';
 
 const Chat = () => {
 
@@ -49,16 +48,17 @@ const Chat = () => {
             setReceverMessage(msg)
         })
         socket.on('activeSeller', (sellers) => {
+            console.log(`收到activeSeller的訊息=>activeSeller:${sellers}`, sellers)
             setActiveSeller(sellers)
         })
     }, [])
 
     useEffect(() => {
         if (successMessage) {
-            socket.emit('send_customer_message',fb_messages[fb_messages.length - 1])
+            socket.emit('send_customer_message', fb_messages[fb_messages.length - 1])
             dispatch(messageClear())
         }
-    },[successMessage])
+    }, [successMessage])
 
     useEffect(() => {
         if (receverMessage) {
@@ -70,11 +70,11 @@ const Chat = () => {
                 dispatch(messageClear())
             }
         }
-    },[receverMessage])
+    }, [receverMessage])
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth'})
-    },[fb_messages])
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [fb_messages])
 
     return (
         <div className='bg-white p-3 rounded-md'>

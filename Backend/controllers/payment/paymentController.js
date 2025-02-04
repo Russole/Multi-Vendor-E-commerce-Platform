@@ -5,7 +5,7 @@ const withdrawRequest = require('../../models/withdrawRequest')
 const { mongo: { ObjectId } } = require('mongoose')
 
 const { v4: uuidv4 } = require('uuid');
-const stripe = require('stripe')('sk_test_51QQ0s9D0Czud5bUaeKjI3gri5LFzcaYVfSdWk4HN4C8926y8NCQ0xFNREyaqZvGRj3paK6oid6F3Kzs0EkTG72wc00SjmjIH75');
+const stripe = require('stripe')(process.env.stripe_key);
 const { responseReturn } = require('../../utils/response')
 class paymentController {
     create_stripe_connect_account = async (req, res) => {

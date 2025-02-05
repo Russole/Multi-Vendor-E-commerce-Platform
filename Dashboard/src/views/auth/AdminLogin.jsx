@@ -40,7 +40,7 @@ const AdminLogin = () => {
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear())
-            navigate('/')
+            navigate('/admin/dashboard')
         }
     }, [errorMessage, successMessage])
     return (

@@ -121,7 +121,6 @@ export const profile_image_upload = createAsyncThunk(
 export const logout = createAsyncThunk(
     'auth/logout',
     async ({ navigate, role }, { rejectWithValue, fulfillWithValue }) => {
-
         try {
             const { data } = await api.get('/logout', { withCredentials: true })
             socket.emit('SellerLogout')

@@ -32,7 +32,7 @@ const Login = () => {
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear())
-            navigate('/')
+            navigate('/seller/dashboard')
         }
         if (errorMessage) {
             toast.error(errorMessage)
@@ -59,11 +59,11 @@ const Login = () => {
 
                         <button disabled={loader ? true : false} className='bg-slate-800 w-full hover:shadow-blue-300/ hover:shadow-lg text-white rounded-md px-7 py-2 mb-3'>
                             {
-                                loader ? <PropagateLoader color='#fff' cssOverride={overrideStyle} /> : 'Sing In'
+                                loader ? <PropagateLoader color='#fff' cssOverride={overrideStyle} /> : 'Sign In'
                             }
                         </button>
                         <div className='flex items-center mb-3 gap-3 justify-center'>
-                            <p>Don't Have an account ? <Link className='font-bold' to="/register">Sing Up</Link> </p>
+                            <p>Don't Have an account ? <Link className='font-bold' to="/register">Sign Up</Link> </p>
                         </div>
                         <div className='w-full flex justify-center items-center mb-3'>
                             <div className='w-[45%] bg-slate-700 h-[1px]'></div>

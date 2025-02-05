@@ -5,14 +5,14 @@ import { FaFacebook } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import { PropagateLoader } from 'react-spinners';
 import { overrideStyle } from '../../utils/utils';
-import { seller_register,messageClear } from '../../store/Reducers/authReducer';
+import { seller_register, messageClear } from '../../store/Reducers/authReducer';
 import toast from 'react-hot-toast';
 
 const Register = () => {
 
-    const  navigate = useNavigate()
+    const navigate = useNavigate()
     const dispatch = useDispatch()
-    const {loader,successMessage,errorMessage} = useSelector(state=>state.auth)
+    const { loader, successMessage, errorMessage } = useSelector(state => state.auth)
     const [state, setState] = useState({
         name: "",
         email: "",
@@ -33,15 +33,15 @@ const Register = () => {
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear())
-            navigate('/')  
+            navigate('/seller/dashboard')
         }
         if (errorMessage) {
             toast.error(errorMessage)
             dispatch(messageClear())
         }
-        
-    },[successMessage,errorMessage])
-    
+
+    }, [successMessage, errorMessage])
+
     return (
         <div className='min-w-screen min-h-screen bg-[#cdcae9] flex justify-center items-center' >
             <div className='w-[350px] text-[#ffffff] p-2'>
@@ -71,7 +71,7 @@ const Register = () => {
                             }
                         </button>
                         <div className='flex items-center mb-3 gap-3 justify-center'>
-                            <p>Already Have an account ? <Link className='font-bold' to="/login">Sing In</Link> </p>
+                            <p>Already Have an account ? <Link className='font-bold' to="/login">Sign In</Link> </p>
                         </div>
 
                         <div className='w-full flex justify-center items-center mb-3'>

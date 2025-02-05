@@ -214,6 +214,12 @@ export const authReducer = createSlice({
                 state.loader = false;
                 state.userInfo = payload.userInfo
                 state.successMessage = payload.message
+            }).addCase(logout.pending, (state, { payload }) => {
+                state.loader = true;
+            })
+            .addCase(logout.fulfilled, (state, { payload }) => {
+                state.loader = false;
+                state.successMessage = payload.message
             })
     }
 })

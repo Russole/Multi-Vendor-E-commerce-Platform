@@ -38,9 +38,11 @@ const AdminLogin = () => {
             dispatch(messageClear())
         }
         if (successMessage) {
-            toast.success(successMessage)
-            dispatch(messageClear())
-            navigate('/admin/dashboard')
+            if (successMessage !== "logout Success") {
+                toast.success(successMessage)
+                dispatch(messageClear())
+                navigate('/admin/dashboard')
+            }
         }
     }, [errorMessage, successMessage])
     return (

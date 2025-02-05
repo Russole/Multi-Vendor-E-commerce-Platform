@@ -30,9 +30,11 @@ const Login = () => {
 
     useEffect(() => {
         if (successMessage) {
-            toast.success(successMessage)
-            dispatch(messageClear())
-            navigate('/seller/dashboard')
+            if (successMessage !== "logout Success") {
+                toast.success(successMessage)
+                dispatch(messageClear())
+                navigate('/seller/dashboard')
+            }
         }
         if (errorMessage) {
             toast.error(errorMessage)

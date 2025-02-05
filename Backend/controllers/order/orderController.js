@@ -6,7 +6,7 @@ const { responseReturn } = require('../../utils/response')
 const { mongo: { ObjectId } } = require('mongoose')
 const myShopWallet = require('../../models/myShopWallet')
 const sellerWallet = require('../../models/sellerWallet')
-const stripe = require('stripe')('sk_test_51QQ0s9D0Czud5bUaeKjI3gri5LFzcaYVfSdWk4HN4C8926y8NCQ0xFNREyaqZvGRj3paK6oid6F3Kzs0EkTG72wc00SjmjIH75')
+const stripe = require('stripe')(process.env.stripe_key)
 
 class orderController {
 

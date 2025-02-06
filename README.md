@@ -2,7 +2,7 @@
 
 ## Deploy To AWS
 
-E-commerce Platform : https://emecommerce.com/
+E-commerce Platform : https://emecommerce.com/  
 Merchant platform : https://emecommerce.com:3001/login
 
 ## How To Run
